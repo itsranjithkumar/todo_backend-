@@ -2,5 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  return NextResponse.json({ message: 'Hello World' }, { status: 200 });
+    const { searchParams } = new URL(request.url);
+    console.log(searchParams);  
+return NextResponse.json({ message: 'Hello World' }, { status: 200 });
 }
