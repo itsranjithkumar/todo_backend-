@@ -1,15 +1,17 @@
 // app/api/todos/[id]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '../../../utils/db';
 import Todo from '../../../models/todo';
 
+
 export async function PUT(
-  request: NextRequest, 
-  { params }: { params: { id: string } }
+    request: NextRequest,
+    context: { params: { id: string } }
 ) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = context.params;
     const body = await request.json();
     const { title, completed } = body;
 
