@@ -1,26 +1,36 @@
-import connectDB from "../../utils/db";
-import Todo from "../../models/todo";
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '../../utils/db';
+import Todo from '../../models/todo';
 
-export default async function handler(req, res) {
-  await connectDB();
+export async function GET(request: NextRequest) {
+  try {
+    await connectDB();
+    const todos = await Todo.find();
+    return NextResponse.json(todos, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ 
+      message: 'Error fetching todos', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    }, { status: 500 });
+  }
+}
 
-  if (req.method === "GET") {
-    try {
-      const todos = await Todo.find();
-      res.status(200).json(todos);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+export async function POST(request: NextRequest) {
+  try {
+    await connectDB();
+    const body = await request.json();
+    const { title } = body;
+    
+    if (!title) {
+      return NextResponse.json({ message: 'Title is required' }, { status: 400 });
     }
-  } else if (req.method === "POST") {
-    try {
-      const { title } = req.body;
-      const todo = await Todo.create({ title });
-      res.status(201).json(todo);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  } else {
-    res.setHeader("Allow", ["GET", "POST"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+
+    const todo = await Todo.create({ title });
+    return NextResponse.json(todo, { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ 
+      message: 'Error creating todo', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    }, { status: 400 });
   }
 }
